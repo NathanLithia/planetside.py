@@ -119,28 +119,45 @@ class ps2v2(commands.Cog):
             
         #Return a generated embed.
         return ps2embed
+    
+    # this function shall be responsible for parsing and verification of inputs
+    def ParseServerNames(self, ctx, *args):
+        requestedServers = []
+        requestedServers.append(ctx.message.content.split()[0][1:]) 
+        requestedServers.extend(args)
 
+        # process and verify
+        for server in requestedServers:
+            server = server.lower()
+            if not (server in self.servers):
+                requestedServers.remove(server)
+
+        return requestedServers
+
+    # after reading the discord docs, this is alias abuse lmao
+    # hack way to allow for ">connery emerald miller" using first term as command and rest as params
     @commands.cooldown(1, 3, commands.BucketType.user)
     @commands.command(pass_context=True, aliases=['jaeger', 'Jaeger', 'connery', 'Connery', 'miller', 'Miller', 'emerald', 'Emerald', 'cobalt', 'Cobalt', 'soltech', 'Soltech', 'apex', 'Apex', 'briggs', 'Briggs'])
-    async def PS2_Serverv2(self, ctx):
+    async def PS2_Serverv2(self, ctx, *args):
         """
         Checks the status of a Planetside2 Server.
         Usage: {ServerName}
         """
-        server = ctx.message.content.split()[0][1:].lower()
-        print(server)
-        if server in self.servers:
-            if ctx.author.bot == False:
-                try:
-                    if server.lower() == 'connery':
-                        header = str(self.client.get_channel(998406090729476159).name).replace('Connery:', '')
-                    else:
-                        header = self.donation
-                    MSG = await ctx.reply(f'{header}', embed=self.PS2_Loading_Embed)
-                    setattr(self, f"{server}Data", self.PS2EmbedGen(self.PS2WorldGrab(self.servernum[server]), server))
-                    await MSG.edit(content=f'{header}',embed=getattr(self, f"{server}Data"))
-                except Exception as e: await ctx.send(f'Could not connect to API. Please try again later.')
-            else:
+        requestedServers = self.ParseServerNames(ctx, args)
+        for server in requestedServers:
+            if server in self.servers:
+                if ctx.author.bot == False:
+                    try:
+                        if server.lower() == 'connery':
+                            header = str(self.client.get_channel(998406090729476159).name).replace('Connery:', '')
+                        else:
+                            header = self.donation
+                        MSG = await ctx.reply(f'{header}', embed=self.PS2_Loading_Embed)
+                        setattr(self, f"{server}Data", self.PS2EmbedGen(self.PS2WorldGrab(self.servernum[server]), server))
+                        await MSG.edit(content=f'{header}',embed=getattr(self, f"{server}Data"))
+                    except Exception as e: 
+                        await ctx.send(f'Could not connect to API. Please try again later.')
+                else:
                     MSG = await ctx.reply(f'{self.PS2EmbedGen(self.PS2WorldGrab(self.servernum[server]), server, True)}')
 
     @app_commands.command(name = "connery", description = "Connery Population") #Add the guild ids in which the slash command will appear. If it should be in all, remove the argument, but note that it will take some time (up to an hour) to register the command if it's for all guilds.
