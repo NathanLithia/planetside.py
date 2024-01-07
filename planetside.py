@@ -54,7 +54,7 @@ class ps2v2(commands.Cog):
         #Default loading Embed, Probably a better to put this inside the actual command?
         self.PS2_Loading_Embed=discord.Embed(color=0xc0c0c0)
         self.PS2_Loading_Embed.set_thumbnail(url=f"https://cdn.discordapp.com/attachments/802538687698567178/805190014588682270/planetside.webp")
-        self.PS2_Loading_Embed.add_field(name=f'Planetside 2', value=f'``🔵`` ``...`` ``⚪`` ``...``\n``🟣`` ``...`` ``⚪`` ``...``\n``🔴`` ``...`` ``⚪`` ``...``', inline=True)
+        self.PS2_Loading_Embed.add_field(name='Planetside 2', value=f'``🔵`` ``...`` ``⚪`` ``...``\n``🟣`` ``...`` ``⚪`` ``...``\n``🔴`` ``...`` ``⚪`` ``...``', inline=True)
         self.PS2_Loading_Embed.add_field(name='Statistics', value=f'``Loading...``\n``🌍`` ``...``\n``⚪`` ``...``', inline=True)
 
         #Query cache variables, Not utilizing these right now.
@@ -77,7 +77,7 @@ class ps2v2(commands.Cog):
 
     def JsonGrab(self, URL, seconds = 15):
         try:
-            headers = {'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/50.0.2661.102 Safari/537.36'}
+            headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'}
             result = requests.get(URL, headers=headers)
             print(result.content.decode())
         except urllib.error.URLError:
@@ -109,8 +109,8 @@ class ps2v2(commands.Cog):
         if textmode == False:
             ps2embed=discord.Embed(color=0xc0c0c0)
             ps2embed.set_thumbnail(url=f"{EmbedImage}")
-            ps2embed.add_field(name=f'Teams', value=f'``🔵`` ``{NC}``\n``🟣`` ``{VS}``\n``🔴`` ``{TR}``', inline=True)
-            ps2embed.add_field(name=f'Bots', value=f'``⚪`` ``{NSNC}``\n``⚪`` ``{NSVS}``\n``⚪`` ``{NSTR}``', inline=True)
+            ps2embed.add_field(name='Teams', value=f'``🔵`` ``{NC}``\n``🟣`` ``{VS}``\n``🔴`` ``{TR}``', inline=True)
+            ps2embed.add_field(name='Bots', value=f'``⚪`` ``{NSNC}``\n``⚪`` ``{NSVS}``\n``⚪`` ``{NSTR}``', inline=True)
             ps2embed.add_field(name='Statistics', value=f'``{ServerName.upper()}``\n``🌍`` ``{total}``\n``🤖`` ``{NS}``', inline=True)
 
 
