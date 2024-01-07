@@ -11,9 +11,13 @@ class ps2v2(commands.Cog):
         self.client = client
 
         #Default Variables, Probably better way to do this?
+        # TODO: export all of the following into a seperate config file and read in
         self.donation = "<https://nathanlithia.github.io/>"
         self.EasterEggs = ["https://media.discordapp.net/attachments/723022911589580832/801699761933123634/Chimken_Sandwhich.gif", "https://media.discordapp.net/attachments/783545628964814848/800146289190895656/image0-42.gif", "https://media.discordapp.net/attachments/670519800400969749/818012605641261056/1596954736144.gif", "https://media.discordapp.net/attachments/814384891730198538/819929709973995610/giphy_-_2020-08-11T154220.479.gif", "https://media.discordapp.net/attachments/296056831514509312/791652552826814464/image0-448.gif", "https://media.discordapp.net/attachments/193278651020738561/779947007670222848/which.gif"]
         self.PS2Images = ["https://cdn.discordapp.com/app-assets/309600524125339659/517514078227398677.png","https://cdn.discordapp.com/app-assets/309600524125339659/517514073433309194.png","https://cdn.discordapp.com/app-assets/309600524125339659/517514062985428993.png","https://cdn.discordapp.com/app-assets/309600524125339659/517514065401217036.png","https://cdn.discordapp.com/app-assets/309600524125339659/517514084455809034.png","https://cdn.discordapp.com/app-assets/309600524125339659/517514083352969216.png","https://cdn.discordapp.com/app-assets/309600524125339659/517514082136358916.png","https://cdn.discordapp.com/app-assets/309600524125339659/517514072778866688.png","https://cdn.discordapp.com/app-assets/309600524125339659/517514073055821825.png","https://cdn.discordapp.com/app-assets/309600524125339659/517514077812293643.png"]
+        self.multiPopQueryUrlBase = "https://wt.honu.pw/api/population/multiple?"
+        self.multiPopQueryParamToken = "worldID="
+        self.multiPopQueryDelimiterToken = "&"
 
         self.servernum = {
             'briggs':25,
@@ -87,9 +91,17 @@ class ps2v2(commands.Cog):
             return json.loads(result.content.decode())
 
 
-    def PS2WorldGrab(self, WorldID):
-        print(f"http://wt.honu.pw/api/population/{WorldID}")
-        return self.JsonGrab(f"http://wt.honu.pw/api/population/{WorldID}")
+    def PS2WorldGrab(self, *WorldIDs):
+        params = ""
+        for ids in WorldIDs:
+            params += self.multiPopQueryDelimiterToken
+            params += self.multiPopQueryParamToken
+            params += ids
+
+        params = params[1:] # removes the first unneeded delimiter
+
+        print(f"{self.multiPopQueryUrlBase}{params}")
+        return self.JsonGrab(f"{self.multiPopQueryUrlBase}{params}")
 
 
     def PS2EmbedGen(self, JData, ServerName = "Server_Name", textmode = False):
@@ -120,13 +132,14 @@ class ps2v2(commands.Cog):
         #Return a generated embed.
         return ps2embed
     
-    # this function shall be responsible for parsing and verification of inputs
+    # this function shall be responsible for parsing, verification of inputs, and minor processing
+    # returns valid server names in lowercase
     def ParseServerNames(self, ctx, *args):
         requestedServers = []
         requestedServers.append(ctx.message.content.split()[0][1:]) 
         requestedServers.extend(args)
 
-        # process and verify
+        # verify and process
         for server in requestedServers:
             server = server.lower()
             if not (server in self.servers):
@@ -141,24 +154,26 @@ class ps2v2(commands.Cog):
     async def PS2_Serverv2(self, ctx, *args):
         """
         Checks the status of a Planetside2 Server.
-        Usage: {ServerName}
+        Usage, one or more of: {ServerName}
         """
         requestedServers = self.ParseServerNames(ctx, args)
-        for server in requestedServers:
-            if server in self.servers:
+        requestedServerIds = map(lambda serverName : self.servernum[serverName], requestedServers)
+        
+        try:
+            popData = self.PS2WorldGrab(requestedServerIds)
+            for server, serverPopData in requestedServers, popData:
                 if ctx.author.bot == False:
-                    try:
-                        if server.lower() == 'connery':
-                            header = str(self.client.get_channel(998406090729476159).name).replace('Connery:', '')
-                        else:
-                            header = self.donation
-                        MSG = await ctx.reply(f'{header}', embed=self.PS2_Loading_Embed)
-                        setattr(self, f"{server}Data", self.PS2EmbedGen(self.PS2WorldGrab(self.servernum[server]), server))
-                        await MSG.edit(content=f'{header}',embed=getattr(self, f"{server}Data"))
-                    except Exception as e: 
-                        await ctx.send(f'Could not connect to API. Please try again later.')
+                    if server == 'connery':
+                        header = str(self.client.get_channel(998406090729476159).name).replace('Connery:', '')
+                    else:
+                        header = self.donation
+                    MSG = await ctx.reply(f'{header}', embed=self.PS2_Loading_Embed)
+                    setattr(self, f"{server}Data", self.PS2EmbedGen(serverPopData, server))
+                    await MSG.edit(content=f'{header}',embed=getattr(self, f"{server}Data"))
                 else:
-                    MSG = await ctx.reply(f'{self.PS2EmbedGen(self.PS2WorldGrab(self.servernum[server]), server, True)}')
+                    MSG = await ctx.reply(f'{self.PS2EmbedGen(serverPopData, server, True)}')
+        except Exception as e: 
+            await ctx.send(f'Could not connect to API. Please try again later.')
 
     @app_commands.command(name = "connery", description = "Connery Population") #Add the guild ids in which the slash command will appear. If it should be in all, remove the argument, but note that it will take some time (up to an hour) to register the command if it's for all guilds.
     async def first_command(self, interaction):
