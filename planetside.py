@@ -142,7 +142,7 @@ class ps2v2(commands.Cog):
                     MSG = await ctx.reply(f'{header}', embed=self.PS2_Loading_Embed)
                     setattr(self, f"{server}Data", self.PS2EmbedGen(await self.PS2WorldGrab(self.servernum[server]), server))
                     await MSG.edit(content=f'{header}',embed=getattr(self, f"{server}Data"))
-                except Exception as e: await ctx.send(f'Could not connect to API. Please try again later.\n{e}\n{traceback.format_exc()}')
+                except Exception as e: await ctx.send(f'Could not connect to API. Please try again later.')
             else:
                     MSG = await ctx.reply(f'{self.PS2EmbedGen(self.PS2WorldGrab(self.servernum[server]), server, True)}')
 
