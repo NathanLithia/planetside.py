@@ -5,6 +5,9 @@ import json
 import urllib.request
 import requests
 from discord import app_commands
+import aiohttp
+from aiohttp.client import ClientTimeout
+import traceback
 
 class ps2v2(commands.Cog):
     def __init__(self, client):
@@ -75,21 +78,21 @@ class ps2v2(commands.Cog):
         self.soltechData    = None
 
 
-    def JsonGrab(self, URL, seconds = 15):
+    async def JsonGrab(self, URL, seconds = 15):
         try:
             headers = {'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/50.0.2661.102 Safari/537.36'}
-            result = requests.get(URL, headers=headers)
-            print(result.content.decode())
+            timeout = ClientTimeout(total=0)
+            async with aiohttp.ClientSession() as session:
+                async with session.get(URL, headers=headers, timeout=timeout) as response:
+                    return json.loads(await response.text())
         except urllib.error.URLError:
             print("Error: Could not connect to API")
             return 'URLERROR'
-        else:
-            return json.loads(result.content.decode())
 
 
-    def PS2WorldGrab(self, WorldID):
+    async def PS2WorldGrab(self, WorldID):
         print(f"http://wt.honu.pw/api/population/{WorldID}")
-        return self.JsonGrab(f"http://wt.honu.pw/api/population/{WorldID}")
+        return await self.JsonGrab(f"http://wt.honu.pw/api/population/{WorldID}")
 
 
     def PS2EmbedGen(self, JData, ServerName = "Server_Name", textmode = False):
@@ -120,7 +123,7 @@ class ps2v2(commands.Cog):
         #Return a generated embed.
         return ps2embed
 
-    @commands.cooldown(1, 3, commands.BucketType.user)
+    @commands.cooldown(1, 1, commands.BucketType.user)
     @commands.command(pass_context=True, aliases=['jaeger', 'Jaeger', 'connery', 'Connery', 'miller', 'Miller', 'emerald', 'Emerald', 'cobalt', 'Cobalt', 'soltech', 'Soltech', 'apex', 'Apex', 'briggs', 'Briggs'])
     async def PS2_Serverv2(self, ctx):
         """
@@ -137,9 +140,9 @@ class ps2v2(commands.Cog):
                     else:
                         header = self.donation
                     MSG = await ctx.reply(f'{header}', embed=self.PS2_Loading_Embed)
-                    setattr(self, f"{server}Data", self.PS2EmbedGen(self.PS2WorldGrab(self.servernum[server]), server))
+                    setattr(self, f"{server}Data", self.PS2EmbedGen(await self.PS2WorldGrab(self.servernum[server]), server))
                     await MSG.edit(content=f'{header}',embed=getattr(self, f"{server}Data"))
-                except Exception as e: await ctx.send(f'Could not connect to API. Please try again later.')
+                except Exception as e: await ctx.send(f'Could not connect to API. Please try again later.\n{e}\n{traceback.format_exc()}')
             else:
                     MSG = await ctx.reply(f'{self.PS2EmbedGen(self.PS2WorldGrab(self.servernum[server]), server, True)}')
 
