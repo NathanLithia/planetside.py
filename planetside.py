@@ -112,9 +112,9 @@ class ps2v2(commands.Cog):
         if textmode == False:
             ps2embed=discord.Embed(color=0xc0c0c0)
             ps2embed.set_thumbnail(url=f"{EmbedImage}")
-            ps2embed.add_field(name=f'Teams', value=f'``🔵`` ``{NC}``\n``🟣`` ``{VS}``\n``🔴`` ``{TR}``', inline=True)
-            ps2embed.add_field(name=f'Bots', value=f'``⚪`` ``{NSNC}``\n``⚪`` ``{NSVS}``\n``⚪`` ``{NSTR}``', inline=True)
-            ps2embed.add_field(name='Statistics', value=f'``{ServerName.upper()}``\n``🌍`` ``{total}``\n``🤖`` ``{NS}``', inline=True)
+            ps2embed.add_field(name=f'Factions', value=f'``🔵`` ``{NC}``\n``🟣`` ``{VS}``\n``🔴`` ``{TR}``', inline=True)
+            ps2embed.add_field(name=f'NSO', value=f'``⚪`` ``{NSNC}``\n``⚪`` ``{NSVS}``\n``⚪`` ``{NSTR}``', inline=True)
+            ps2embed.add_field(name='Statistics', value=f'``{ServerName.upper()}``\n``🌍`` ``{total}``\n``⚪`` ``{NS}``', inline=True)
 
 
         else:
