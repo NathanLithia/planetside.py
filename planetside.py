@@ -14,7 +14,7 @@ class ps2v2(commands.Cog):
         self.client = client
 
         #Default Variables, Probably better way to do this?
-        self.donation = "<https://nathanlithia.github.io/>"
+        self.messageheader = "<https://nathanlithia.github.io/>"
         self.EasterEggs = ["https://media.discordapp.net/attachments/723022911589580832/801699761933123634/Chimken_Sandwhich.gif", "https://media.discordapp.net/attachments/783545628964814848/800146289190895656/image0-42.gif", "https://media.discordapp.net/attachments/670519800400969749/818012605641261056/1596954736144.gif", "https://media.discordapp.net/attachments/814384891730198538/819929709973995610/giphy_-_2020-08-11T154220.479.gif", "https://media.discordapp.net/attachments/296056831514509312/791652552826814464/image0-448.gif", "https://media.discordapp.net/attachments/193278651020738561/779947007670222848/which.gif"]
         self.PS2Images = ["https://cdn.discordapp.com/app-assets/309600524125339659/517514078227398677.png","https://cdn.discordapp.com/app-assets/309600524125339659/517514073433309194.png","https://cdn.discordapp.com/app-assets/309600524125339659/517514062985428993.png","https://cdn.discordapp.com/app-assets/309600524125339659/517514065401217036.png","https://cdn.discordapp.com/app-assets/309600524125339659/517514084455809034.png","https://cdn.discordapp.com/app-assets/309600524125339659/517514083352969216.png","https://cdn.discordapp.com/app-assets/309600524125339659/517514082136358916.png","https://cdn.discordapp.com/app-assets/309600524125339659/517514072778866688.png","https://cdn.discordapp.com/app-assets/309600524125339659/517514073055821825.png","https://cdn.discordapp.com/app-assets/309600524125339659/517514077812293643.png"]
 
@@ -135,10 +135,7 @@ class ps2v2(commands.Cog):
         if server in self.servers:
             if ctx.author.bot == False:
                 try:
-                    if server.lower() == 'connery':
-                        header = str(self.client.get_channel(998406090729476159).name).replace('Connery:', '')
-                    else:
-                        header = self.donation
+                    header = self.messageheader
                     MSG = await ctx.reply(f'{header}', embed=self.PS2_Loading_Embed)
                     setattr(self, f"{server}Data", self.PS2EmbedGen(await self.PS2WorldGrab(self.servernum[server]), server))
                     await MSG.edit(content=f'{header}',embed=getattr(self, f"{server}Data"))
